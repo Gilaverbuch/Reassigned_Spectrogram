@@ -92,13 +92,12 @@ def get_stft(signal_, w_, fft_len_, overlap_):
     fft_len: length of stft
     overlap_: window overlap
     '''
-    if fft_len_/w_<4:
-        fft_len_ = w_*4
+    if fft_len_/w_<2:
+        fft_len_ = w_*2
         print('change fft length')
     dt = signal_.stats.delta
     fs = 1/dt
     window_s = int(fs*w_)
-    window_s2 =window_s * 2
     n = np.arange(window_s)
     t_n = np.arange(-int(window_s/2), int(window_s/2))
     ovlp = int(overlap_*window_s)
@@ -125,8 +124,8 @@ def get_stft(signal_, w_, fft_len_, overlap_):
 
     for i,j in enumerate(pos):
 
-        S[window_s2+n,i] = signal[j+n] * h / norm_h
-        S_del[window_s2+n,i] = signal[j+n-1] * h / norm_h
+        S[window_s+n,i] = signal[j+n] * h / norm_h
+        S_del[window_s+n,i] = signal[j+n-1] * h / norm_h
 
     F_S = np.fft.fft(S, axis = 0)
     F_S_del = np.fft.fft(S_del, axis = 0)
@@ -178,3 +177,40 @@ def nelson_reassigned(signal_, w_, fft_len_, overlap_, f_min, f_max, lim_amp):
 
 
     return F_S, Z_reassigned, CIF_1, LGD_1, freq, time_new
+
+
+
+#-----------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
+
+def plt_results(signal_, F_S, Z_reassigned, freq, time, time_new, tmin, tmax, fmin, fmax, amp):
+
+    plt.figure(figsize=(10,5))
+    plt.plot(time, signal_.data)
+    plt.xlim(tmin, tmax)
+    plt.show()
+
+    tmin_pos = (np.abs(time_new - tmin)).argmin()
+    tmax_pos = (np.abs(time_new - tmax)).argmin()
+    fmin_pos = (np.abs(freq - fmin)).argmin()
+    fmax_pos = (np.abs(freq - fmax)).argmin()
+
+    XX = np.abs(F_S[fmin_pos:fmax_pos,tmin_pos:tmax_pos])
+    plt.figure(figsize=(13,5))
+    plt.pcolormesh(time_new[tmin_pos:tmax_pos],freq[fmin_pos:fmax_pos], XX, vmin=0, vmax=np.max(XX)/1, shading='gouraud')
+    plt.title('STFT Magnitude ')
+    plt.ylabel('Frequency [Hz]')
+    plt.xlabel('Time [sec]')
+    plt.clim([0,amp])
+    plt.colorbar()
+    plt.show()
+
+    XX = np.abs(Z_reassigned[fmin_pos:fmax_pos,tmin_pos:tmax_pos])
+    plt.figure(figsize=(13,5))
+    plt.pcolormesh(time_new[tmin_pos:tmax_pos],freq[fmin_pos:fmax_pos], XX, vmin=0, vmax=np.max(XX)/1, shading='gouraud')
+    plt.title('RS Magnitude ')
+    plt.ylabel('Frequency [Hz]')
+    plt.xlabel('Time [sec]')
+    plt.clim([0,amp])
+    plt.colorbar()
+    plt.show()

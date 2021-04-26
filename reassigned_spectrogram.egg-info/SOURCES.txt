@@ -1,8 +1,0 @@
-README.md
-setup.py
-reassigned_spectrogram/__init__.py
-reassigned_spectrogram/reassigned_spectrogram.py
-reassigned_spectrogram.egg-info/PKG-INFO
-reassigned_spectrogram.egg-info/SOURCES.txt
-reassigned_spectrogram.egg-info/dependency_links.txt
-reassigned_spectrogram.egg-info/top_level.txt
